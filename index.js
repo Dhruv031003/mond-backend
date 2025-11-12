@@ -13,6 +13,9 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
 app.get("/authCheck",verifyAuth, (req, res) => res.send("auth check passed!!!"));
+app.get("/healthCheck",(req,res)=>{
+  res.send("server is healthy and running")
+})
 
 app.use("/auth",userRouter)
 
