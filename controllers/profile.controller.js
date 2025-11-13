@@ -1,16 +1,7 @@
-import { body, validationResult } from "express-validator";
+import User from "../models/User.models.js";
 
 const saveProfileDetails = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const valueRemovedErrors = errors
-        .array()
-        .map(({ value, ...rest }) => rest);
-      return res
-        .status(400)
-        .json({ message: "failed", errors: valueRemovedErrors });
-    }
     const {
       name,
       bio,
@@ -32,7 +23,7 @@ const saveProfileDetails = async (req, res) => {
     if (isPrivate !== undefined) user.isPrivate = isPrivate;
     if (profilePic !== undefined) user.profilePic = profilePic;
 
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
     return res.status(200).json({ message: "Details updated successfully!" });
   } catch (error) {
@@ -41,4 +32,24 @@ const saveProfileDetails = async (req, res) => {
   }
 };
 
-export default { saveProfileDetails };
+const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const user = req.user;
+
+    const userWithPassword = await User.findById(user._id).select("+password");
+    const isMatch = await userWithPassword.comparePassword(oldPassword);
+
+    if (!isMatch)
+      return res.status(401).json({ message: "Enter correct password" });
+    userWithPassword.password = newPassword;
+    await userWithPassword.save();
+
+    return res.status(200).json({ message: "password change successful" });
+  } catch (error) {
+    console.log("error changing password");
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export default { saveProfileDetails, changePassword };

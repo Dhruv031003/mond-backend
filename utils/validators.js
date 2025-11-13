@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, validationResult } from "express-validator";
 
 const emailLoginValidator = [
   body("email")
@@ -11,7 +11,7 @@ const emailLoginValidator = [
     .withMessage("Invalid email address"),
 
   body("password")
-  .trim()
+    .trim()
     .isLength({ min: 8 })
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
@@ -32,7 +32,7 @@ const emailRegisterValidator = [
     .withMessage("Invalid email address"),
 
   body("password")
-  .trim()
+    .trim()
     .notEmpty()
     .isLength({ min: 8 })
     .matches(
@@ -42,13 +42,13 @@ const emailRegisterValidator = [
       "Password must be at least 8 characters long with atleast one capital one small alphabet, atleast one special character and one number"
     ),
   body("confirmPassword")
-  .trim()
-  .custom((value, { req }) => {
-    if (value !== req.body.password) {
-      throw new Error("Passwords do not match");
-    }
-    return true
-  }),
+    .trim()
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Passwords do not match");
+      }
+      return true;
+    }),
 ];
 
 const phoneLoginValidator = [
@@ -60,7 +60,7 @@ const phoneLoginValidator = [
     .withMessage("Invalid phone number"),
 
   body("password")
-  .trim()
+    .trim()
     .isLength({ min: 8 })
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
@@ -76,10 +76,10 @@ const phoneRegisterValidator = [
     .notEmpty()
     .isNumeric()
     .isLength({ min: 10, max: 10 })
-    .withMessage("Invalid phone number"), 
+    .withMessage("Invalid phone number"),
 
   body("password")
-  .trim()
+    .trim()
     .notEmpty()
     .isLength({ min: 8 })
     .matches(
@@ -89,12 +89,62 @@ const phoneRegisterValidator = [
       "Password must be at least 8 characters long with atleast one capital one small alphabet, atleast one special character and one number"
     ),
   body("confirmPassword")
-  .trim().custom((value, { req }) => {
-    if (value !== req.body.password) {
-      throw new Error("Passwords do not match");
-    }
-    return true
-  })
+    .trim()
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Passwords do not match");
+      }
+      return true;
+    }),
 ];
 
-export { emailLoginValidator, emailRegisterValidator, phoneLoginValidator,phoneRegisterValidator };
+const changePasswordValidator = [
+  body("oldPassword")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 8 })
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .withMessage(
+      "Password must be at least 8 characters long with atleast one capital one small alphabet, atleast one special character and one number"
+    ),
+  body("newPassword")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 8 })
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .withMessage(
+      "Password must be at least 8 characters long with atleast one capital one small alphabet, atleast one special character and one number"
+    ),
+  body("confirmNewPassword")
+    .trim()
+    .custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error("Passwords do not match");
+      }
+      return true;
+    }),
+];
+
+const returnErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const valueRemovedErrors = errors.array().map(({ value, ...rest }) => rest);
+    return res
+      .status(400)
+      .json({ message: "failed", errors: valueRemovedErrors });
+  }
+  next();
+};
+
+export {
+  emailLoginValidator,
+  emailRegisterValidator,
+  phoneLoginValidator,
+  phoneRegisterValidator,
+  changePasswordValidator,
+  returnErrors,
+};

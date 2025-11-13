@@ -28,16 +28,6 @@ const logoutHandler = async (req, res) => {
 
 const emailLoginHandler = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const valueRemovedErrors = errors
-        .array()
-        .map(({ value, ...rest }) => rest);
-      return res
-        .status(400)
-        .json({ message: "failed", errors: valueRemovedErrors });
-    }
-
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
@@ -67,16 +57,7 @@ const emailLoginHandler = async (req, res) => {
 
 const emailRegisterHandler = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const valueRemovedErrors = errors
-        .array()
-        .map(({ value, ...rest }) => rest);
-      return res
-        .status(400)
-        .json({ message: "failed", errors: valueRemovedErrors });
-    }
-
+    
     const { email, password } = req.body;
 
     const existingUser = await User.findOne({ email });
@@ -107,15 +88,6 @@ const emailRegisterHandler = async (req, res) => {
 
 const phoneLoginHandler = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const valueRemovedErrors = errors
-        .array()
-        .map(({ value, ...rest }) => rest);
-      return res
-        .status(400)
-        .json({ message: "failed", errors: valueRemovedErrors });
-    }
 
     const { phoneNo, password } = req.body;
     const user = await User.findOne({ phoneNo }).select("+password");
@@ -145,15 +117,6 @@ const phoneLoginHandler = async (req, res) => {
 
 const phoneRegisterHandler = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const valueRemovedErrors = errors
-        .array()
-        .map(({ value, ...rest }) => rest);
-      return res
-        .status(400)
-        .json({ message: "failed", errors: valueRemovedErrors });
-    }
 
     const { phoneNo, password } = req.body;
     const existingUser = await User.findOne({ phoneNo });
