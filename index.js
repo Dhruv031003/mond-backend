@@ -3,11 +3,15 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectToDatabase from "./database/db.js";
 import userRouter from "./routes/auth.routes.js";
+import profileRouter from "./routes/profile.routes.js"
+
 import verifyAuth from "./controllers/auth.controller.js";
+import getPreSignedURL from "./utils/preSignedURL.js";
 
 const app = express();
 
 dotenv.config();
+
 app.use(cors({ origin: "*" }));
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
@@ -18,6 +22,9 @@ app.get("/healthCheck",(req,res)=>{
 })
 
 app.use("/auth",userRouter)
+app.use("/profile",verifyAuth,profileRouter)
+
+app.post("/upload/preSignedURL",verifyAuth,getPreSignedURL)
 
 connectToDatabase(() => {
   app.listen(process.env.PORT, (mongoConnectionInstance) => {

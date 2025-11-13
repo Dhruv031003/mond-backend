@@ -178,7 +178,7 @@ const phoneRegisterHandler = async (req, res) => {
       refreshToken,
     });
   } catch (error) {
-    console.log(error, "phonr register error");
+    console.log(error, "phone register error");
     return res.status(500).json({ message: "Internal server error" });
   }
 };
