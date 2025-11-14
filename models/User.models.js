@@ -51,6 +51,10 @@ const userSchema = new mongoose.Schema(
         type: Map,
         of: String,
         default:{}
+    },
+    isProfileCompleted:{
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true, versionKey: false }

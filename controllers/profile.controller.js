@@ -11,6 +11,7 @@ const saveProfileDetails = async (req, res) => {
       "followersCount",
       "isPrivate",
       "profilePic",
+      "isProfileCompleted"
     ];
 
     const user = req.user;

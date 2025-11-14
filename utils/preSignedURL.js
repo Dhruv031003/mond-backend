@@ -1,5 +1,6 @@
 import AWS from "aws-sdk";
 import dotenv from "dotenv";
+import crypto from "crypto";
 
 dotenv.config();
 const s3 = new AWS.S3({
@@ -12,26 +13,43 @@ const s3 = new AWS.S3({
 
 const getPreSignedURL = async (req, res) => {
   try {
-    const { fileName, fileType } = req.body;
-    console.log(fileName,fileType)
+    const { fileName, fileType, uploadedFrom } = req.body;
+    console.log(fileName, fileType);
 
-    if (!fileName || !fileType)
+    if (!fileName || !fileType || !uploadedFrom)
       return res
         .status(400)
-        .json({ message: "FileName and filetype are required" });
-    
+        .json({ message: "FileName, filetype and folder are required" });
+
+    const folderMap = {
+      profile: "profilePics",
+      post: "posts",
+      chat: "chats",
+    };
+    const folderName = folderMap[uploadedFrom];
+    if (!folderName)
+      return res
+        .status(400)
+        .json({ message: "cannot upload photos from here" });
+
+    const ext = fileName.split(".").pop();
+    const randomHash = crypto.randomBytes(8).toString("hex");
+    const timestamp = Date.now();
+
+    const finalFileName = `${timestamp}_${randomHash}.${ext}`;
+
     const params = {
       Bucket: process.env.CF_BUCKET_NAME,
-      Key: fileName,
+      Key: `${folderName}/${finalFileName}`,
       Expires: 60,
       ContentType: fileType,
     };
 
     const uploadURL = await s3.getSignedUrlPromise("putObject", params);
 
-    const publicURL = `https://${process.env.CF_BUCKET_NAME}.${process.env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com/${fileName}`;
+    const publicURL = `${process.env.CF_DEV_PUBLIC_URL}/${folderName}/${finalFileName}`;
 
-    return res.status(200).json({ message: "success", uploadURL,publicURL });
+    return res.status(200).json({ message: "success", uploadURL, publicURL });
   } catch (error) {
     console.log("Presigned url error", error);
     return res.status(500).json({ message: "Internal server error" });
