@@ -129,6 +129,15 @@ const changePasswordValidator = [
     }),
 ];
 
+const setProfileDetailsValidator = [
+  body("name").notEmpty().withMessage("Name is required").trim().isString().withMessage("Name must be a string"),
+  body("bio").trim().optional().isString().withMessage("Bio must be a string"),
+  body("location")
+    .optional()
+    .isString()
+    .withMessage("Location must be a string")
+];
+
 const returnErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -137,7 +146,9 @@ const returnErrors = (req, res, next) => {
       .status(400)
       .json({ message: "failed", errors: valueRemovedErrors });
   }
-  next();
+  else{
+    next();
+  }
 };
 
 export {
@@ -146,5 +157,6 @@ export {
   phoneLoginValidator,
   phoneRegisterValidator,
   changePasswordValidator,
+  setProfileDetailsValidator,
   returnErrors,
 };
