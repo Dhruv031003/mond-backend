@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema(
     profilePic: {
       type: String,
     },
+    links:{
+        type: Map,
+        of: String,
+        default:{}
+    }
   },
   { timestamps: true, versionKey: false }
 );

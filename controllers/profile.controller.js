@@ -10,7 +10,7 @@ const saveProfileDetails = async (req, res) => {
       "postsCount",
       "followersCount",
       "isPrivate",
-      "profilePic"
+      "profilePic",
     ];
 
     const user = req.user;
@@ -20,6 +20,16 @@ const saveProfileDetails = async (req, res) => {
         user[field] = req.body[field];
       }
     });
+
+    if (req.body.links && typeof req.body.links === "object") {
+      if (!user.links) user.links = new Map(); // ensure map exists
+
+      Object.entries(req.body.links).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          user.links.set(key, value); // correct Map usage
+        }
+      });
+    }
 
     await user.save();
 
@@ -51,13 +61,13 @@ const changePassword = async (req, res) => {
 };
 
 const getProfileDetails = async (req, res) => {
-  try{
+  try {
     const user = req.user;
     return res.status(200).json({ message: "success", profile: user });
-  }catch(error){
+  } catch (error) {
     console.log("error getting profile details", error);
     return res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
-export default { saveProfileDetails, changePassword ,getProfileDetails};
+export default { saveProfileDetails, changePassword, getProfileDetails };

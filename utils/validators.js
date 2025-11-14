@@ -130,7 +130,7 @@ const changePasswordValidator = [
 ];
 
 const setProfileDetailsValidator = [
-  body("name").notEmpty().withMessage("Name is required").trim().isString().withMessage("Name must be a string"),
+  body("name").optional().trim().isString().withMessage("Name must be a string"),
   body("bio").trim().optional().isString().withMessage("Bio must be a string"),
   body("location")
     .optional()
