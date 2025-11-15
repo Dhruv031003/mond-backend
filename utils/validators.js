@@ -130,26 +130,31 @@ const changePasswordValidator = [
 ];
 
 const setProfileDetailsValidator = [
-  body("name").optional().trim().isString().withMessage("Name must be a string"),
+  body("name")
+    .optional()
+    .trim()
+    .isString()
+    .withMessage("Name must be a string"),
   body("bio").trim().optional().isString().withMessage("Bio must be a string"),
   body("location")
     .optional()
     .isString()
-    .withMessage("Location must be a string")
+    .withMessage("Location must be a string"),
 ];
 
-const postDetailsValidator=[
+const postDetailsValidator = [
+  body("fileType").trim().notEmpty().isString().withMessage("send correct fileType"),
   body("description")
-  .trim()
-  .notEmpty().
-  isString()
-  .withMessage("Description is needed"),
+    .trim()
+    .notEmpty()
+    .isString()
+    .withMessage("Description is needed"),
   body("objectURL")
-  .trim()
-  .notEmpty()
-  .isString()
-  .withMessage("Send correct image URL")
-]
+    .trim()
+    .notEmpty()
+    .isString()
+    .withMessage("Send correct image URL"),
+];
 
 const returnErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -158,8 +163,7 @@ const returnErrors = (req, res, next) => {
     return res
       .status(400)
       .json({ message: "failed", errors: valueRemovedErrors });
-  }
-  else{
+  } else {
     next();
   }
 };
