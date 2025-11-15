@@ -138,6 +138,19 @@ const setProfileDetailsValidator = [
     .withMessage("Location must be a string")
 ];
 
+const postDetailsValidator=[
+  body("description")
+  .trim()
+  .notEmpty().
+  isString()
+  .withMessage("Description is needed"),
+  body("imageURL")
+  .trim()
+  .notEmpty()
+  .isString()
+  .withMessage("Send correct image URL")
+]
+
 const returnErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -158,5 +171,6 @@ export {
   phoneRegisterValidator,
   changePasswordValidator,
   setProfileDetailsValidator,
+  postDetailsValidator,
   returnErrors,
 };

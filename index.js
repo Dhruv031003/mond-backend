@@ -4,6 +4,7 @@ import cors from "cors";
 import connectToDatabase from "./database/db.js";
 import userRouter from "./routes/auth.routes.js";
 import profileRouter from "./routes/profile.routes.js"
+import postRouter from "./routes/post.routes.js"
 
 import verifyAuth from "./controllers/auth.controller.js";
 import getPreSignedURL from "./utils/preSignedURL.js";
@@ -23,6 +24,7 @@ app.get("/healthCheck",(req,res)=>{
 
 app.use("/auth",userRouter)
 app.use("/profile",verifyAuth,profileRouter)
+app.use("/post",verifyAuth,postRouter)
 
 app.post("/upload/preSignedURL",verifyAuth,getPreSignedURL)
 
