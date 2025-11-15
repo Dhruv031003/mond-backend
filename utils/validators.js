@@ -144,7 +144,7 @@ const postDetailsValidator=[
   .notEmpty().
   isString()
   .withMessage("Description is needed"),
-  body("imageURL")
+  body("objectURL")
   .trim()
   .notEmpty()
   .isString()

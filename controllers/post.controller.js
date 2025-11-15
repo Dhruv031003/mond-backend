@@ -28,15 +28,16 @@ const getPost = async (req, res) => {
 
 const createPost = async (req, res) => {
   try {
-    const { description, location, isArchived, hashTags, imageURL } = req.body;
+    const { description, location, isArchived, hashTags, fileType,objectURL } = req.body;
     const user = req.user;
     const post = await Post.create({
       userId: user._id,
       description,
       location,
+      fileType,
       isArchived: isArchived ?? false,
       hashTags: hashTags ?? [],
-      imageURL: imageURL ?? null,
+      objectURL: objectURL ?? null,
     });
     return res.status(200).json({ message: "success", post });
     

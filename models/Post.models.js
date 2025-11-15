@@ -6,6 +6,10 @@ const postSchema= mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: User
     },
+    fileType:{
+        type: String,
+        required: true
+    },
     description:{
         type: String
     },
@@ -20,7 +24,7 @@ const postSchema= mongoose.Schema({
     location:{
         type: String
     },
-    imageURL:{
+    objectURL:{
         type: String,
         required: true
     },
