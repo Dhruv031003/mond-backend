@@ -3,6 +3,15 @@ import dotenv from "dotenv";
 import crypto from "crypto";
 
 dotenv.config();
+
+const folderMap = {
+      profile: "profilePics",
+      post: "posts",
+      chat: "chats",
+      reel:"reels",
+      thread:"threads"
+    };
+
 const s3 = new AWS.S3({
   endpoint: `https://${process.env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   accessKeyId: process.env.CF_ACCESS_KEY_ID,
@@ -21,11 +30,7 @@ const getPreSignedURL = async (req, res) => {
         .status(400)
         .json({ message: "FileName, filetype and folder are required" });
 
-    const folderMap = {
-      profile: "profilePics",
-      post: "posts",
-      chat: "chats",
-    };
+    
     const folderName = folderMap[uploadedFrom];
     if (!folderName)
       return res

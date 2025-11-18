@@ -142,7 +142,7 @@ const setProfileDetailsValidator = [
     .withMessage("Location must be a string"),
 ];
 
-const postDetailsValidator = [
+const postAndReelDetailsValidator = [
   body("fileType").trim().notEmpty().isString().withMessage("send correct fileType"),
   body("description")
     .trim()
@@ -175,6 +175,6 @@ export {
   phoneRegisterValidator,
   changePasswordValidator,
   setProfileDetailsValidator,
-  postDetailsValidator,
+  postAndReelDetailsValidator,
   returnErrors,
 };
