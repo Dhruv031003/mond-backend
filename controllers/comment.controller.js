@@ -2,20 +2,18 @@ import Comment from "../models/Comment.models.js";
 
 export const createComment = async (req, res) => {
   try {
-    const { content, commentableId, commentableType, parentComment } = req.body;
+    const { text, objectId, objectType, parentComment } = req.body;
 
-    if (!["Post", "Reel"].includes(commentableType)) {
-      return res.status(400).json({ message: "Invalid commentable type" });
+    if (!["Post", "Reel"].includes(objectType)) {
+      return res.status(400).json({ message: "Invalid object type" });
     }
 
-    // Parent comment provided → this is a REPLY
     if (parentComment) {
       const parent = await Comment.findById(parentComment);
       if (!parent) {
         return res.status(404).json({ message: "Parent comment not found" });
       }
 
-      // Only allow one level of replies
       if (parent.parentComment !== null) {
         return res
           .status(400)
@@ -24,9 +22,9 @@ export const createComment = async (req, res) => {
     }
 
     const comment = await Comment.create({
-      content,
-      commentableId,
-      commentableType,
+      text,
+      objectId,
+      objectType,
       parentComment: parentComment || null,
       user: req.user._id,
     });
@@ -43,13 +41,21 @@ export const createComment = async (req, res) => {
 
 export const getAllComments = async (req, res) => {
   try {
-    const { commentableId, commentableType, limit = 10, cursor } = req.query;
+    const { objectId, objectType, limit = 10, cursor } = req.query;
+    
+    if(!objectId || !objectType){
+      return res.status(400).json({ message: "objectId and objectType are required" });
+    }
+    if(limit>20){
+      return res.status(400).json({ message: "Limit cannot exceed 20" });
+    }
 
     const query = {
-      commentableId,
-      commentableType,
+      objectId,
+      objectType,
       parentComment: null, // ONLY TOP LEVEL COMMENTS
     };
+    
 
     if (cursor) {
       query._id = { $lt: cursor };
@@ -69,7 +75,7 @@ export const getAllComments = async (req, res) => {
       comments.pop();
     }
 
-    // Add total likes and total replies to each comment
+    
     comments = await Promise.all(
       comments.map(async (c) => {
         const repliesCount = await Comment.countDocuments({
@@ -102,7 +108,7 @@ export const getReplies = async (req, res) => {
 
     let replies = await Comment.find(query)
       .sort({ _id: -1 })
-      .limit(Number(limit) + 1)
+      .limit(Number(limit) + 1)   // Fetch one extra
       .populate("user", "username avatar");
 
     let hasMore = false;
@@ -110,8 +116,12 @@ export const getReplies = async (req, res) => {
 
     if (replies.length > limit) {
       hasMore = true;
-      nextCursor = replies[limit]._id;
-      replies.pop();
+
+      // FIX: cursor should be the LAST item of the returned batch
+      nextCursor = replies[limit - 1]._id;
+
+      // Remove extra item
+      replies = replies.slice(0, limit);
     }
 
     replies = replies.map((r) => ({
@@ -121,10 +131,13 @@ export const getReplies = async (req, res) => {
 
     res.json({ replies, nextCursor, hasMore });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
 export const toggleLikeComment = async (req, res) => {
   try {
     const { commentId } = req.params;

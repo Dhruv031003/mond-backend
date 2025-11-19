@@ -8,8 +8,8 @@ import {
 
 const router = express.Router();
 
-router.post("/create", createComment);
-router.get("/all", getAllComments);
+router.post("/createComment", createComment);
+router.get("/", getAllComments);
 router.get("/replies", getReplies);
 router.post("/like/:commentId", toggleLikeComment);
 

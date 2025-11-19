@@ -18,10 +18,10 @@ const threadSchema= new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "Thread"
     },
-    depth:{
+    likes:[],
+    likesCount:{
         type: Number,
-        required: true,
-        enum: [0,1,2]
+        default: 0
     }
 },{timestamps: true, versionKey: false})
 

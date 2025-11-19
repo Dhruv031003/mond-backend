@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema(
   {
-    content: { type: String, required: true },
+    text: { type: String, required: true },
 
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -11,11 +11,11 @@ const commentSchema = new mongoose.Schema(
     },
 
     // ----------- Polymorphic reference for Post or Reel -----------
-    commentableId: {
+    objectId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
-    commentableType: {
+    objectType: {
       type: String,
       enum: ["Post", "Reel"],
       required: true,
@@ -30,6 +30,7 @@ const commentSchema = new mongoose.Schema(
 
     // ----------- Likes -----------
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    likeCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
