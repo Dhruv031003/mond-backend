@@ -1,5 +1,5 @@
 import express from "express"
-import checkEmptyBody from "../utils/checkEmptyBody.js"
+import checkEmptyBody from "../middlewares/checkEmptyBody.middleware.js"
 import extraController from "../controllers/extra.controller.js"
 
 const extraRouter= express.Router()

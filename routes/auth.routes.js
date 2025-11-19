@@ -1,16 +1,16 @@
 import express from "express";
-import userController from "../controllers/user.controller.js";
+import userController from "../controllers/auth.controller.js";
 import {
   emailLoginValidator,
   emailRegisterValidator,
   phoneLoginValidator,
   phoneRegisterValidator,
   returnErrors
-} from "../utils/validators.js";
-import verifyAuth from "../controllers/auth.controller.js";
+} from "../middlewares/validateData.middleware.js";
+import verifyUser from "../middlewares/verifyUser.middleware.js";
 const userRouter = express.Router();
 
-userRouter.get("/logout", verifyAuth, userController.logoutHandler);
+userRouter.get("/logout", verifyUser, userController.logoutHandler);
 
 userRouter.post("/google/callback", userController.oAuthHandler);
 

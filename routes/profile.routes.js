@@ -1,7 +1,7 @@
 import express from "express"
 import profileController from "../controllers/profile.controller.js"
-import {returnErrors,changePasswordValidator,setProfileDetailsValidator} from "../utils/validators.js"
-import checkEmptyBody from "../utils/checkEmptyBody.js"
+import {returnErrors,changePasswordValidator,setProfileDetailsValidator} from "../middlewares/validateData.middleware.js"
+import checkEmptyBody from "../middlewares/checkEmptyBody.middleware.js"
 
 const profileRouter=express.Router()
 

@@ -1,6 +1,6 @@
 import express from "express"
-import checkEmptyBody from "../utils/checkEmptyBody.js"
-import {postAndReelDetailsValidator,returnErrors} from "../utils/validators.js"
+import checkEmptyBody from "../middlewares/checkEmptyBody.middleware.js"
+import {postAndReelDetailsValidator,returnErrors} from "../middlewares/validateData.middleware.js"
 import {getReel,getAllReels,createReel} from "../controllers/reel.controller.js"
 
 const reelRouter=express.Router()
