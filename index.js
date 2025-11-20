@@ -8,7 +8,7 @@ import postRouter from "./routes/post.routes.js"
 import reelRouter from "./routes/reel.routes.js";
 import exploreRouter from "./routes/explore.routes.js";
 import commentRouter from "./routes/comment.routes.js";
-// import storyRouter from "./routes/story.routes.js";
+import storyRouter from "./routes/story.routes.js";
 
 import extraRouter from "./routes/extra.routes.js";
 
@@ -36,7 +36,7 @@ app.use("/reel",verifyUser,reelRouter)
 app.use("/explore",verifyUser,exploreRouter)
 app.use("/thread",verifyUser,threadRouter)
 app.use("/comment",verifyUser,commentRouter)
-// app.use("/story",storyRouter)
+app.use("/story",verifyUser,storyRouter)
 app.use("/extra",extraRouter)
 
 app.post("/upload/preSignedURL",verifyUser,getPreSignedURL)
