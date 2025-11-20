@@ -9,7 +9,8 @@ const folderMap = {
       post: "posts",
       chat: "chats",
       reel:"reels",
-      thread:"threads"
+      thread:"threads",
+      story:"stories"
     };
 
 const s3 = new AWS.S3({

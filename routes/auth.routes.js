@@ -1,5 +1,5 @@
 import express from "express";
-import userController from "../controllers/auth.controller.js";
+import authController from "../controllers/auth.controller.js";
 import {
   emailLoginValidator,
   emailRegisterValidator,
@@ -8,40 +8,40 @@ import {
   returnErrors
 } from "../middlewares/validateData.middleware.js";
 import verifyUser from "../middlewares/verifyUser.middleware.js";
-const userRouter = express.Router();
+const authRouter = express.Router();
 
-userRouter.get("/logout", verifyUser, userController.logoutHandler);
+authRouter.get("/logout", verifyUser, authController.logoutHandler);
 
-userRouter.post("/google/callback", userController.oAuthHandler);
+authRouter.post("/google/callback", authController.oAuthHandler);
 
-userRouter.post(
+authRouter.post(
   "/login/email",
   emailLoginValidator,
   returnErrors,
-  userController.emailLoginHandler
+  authController.emailLoginHandler
 );
-userRouter.post(
+authRouter.post(
   "/login/phoneNo",
   phoneLoginValidator,
   returnErrors,
-  userController.phoneLoginHandler
+  authController.phoneLoginHandler
 );
 
-userRouter.post(
+authRouter.post(
   "/register/email",
   emailRegisterValidator,
   returnErrors,
-  userController.emailRegisterHandler
+  authController.emailRegisterHandler
 );
-userRouter.post(
+authRouter.post(
   "/register/phoneNo",
   phoneRegisterValidator,
   returnErrors,
-  userController.phoneRegisterHandler
+  authController.phoneRegisterHandler
 );
-userRouter.post(
+authRouter.post(
   "/refresh/accessToken",
-  userController.refreshAccessTokenHandler
+  authController.refreshAccessTokenHandler
 );
 
-export default userRouter;
+export default authRouter;
