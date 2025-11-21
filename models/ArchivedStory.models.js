@@ -15,7 +15,7 @@ const archivedStorySchema = new mongoose.Schema(
       required: true,
     },
 
-    ObjectURL: String,
+    objectURL: String,
     fileType: String,
 
     mentions: [
