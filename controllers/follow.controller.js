@@ -93,8 +93,8 @@ export const getFollowersList = async (req, res) => {
       userId = req.user?._id;
     } else {
       const isFollower = await Follow.findOne({
-        followerId: req.user._id,
-        followingId: userId,
+        followerId: userId,
+        followingId: req.user._id,
         isConfirmed: true
       });
 

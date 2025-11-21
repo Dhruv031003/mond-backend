@@ -75,7 +75,6 @@ const getProfileDetails = async (req, res) => {
       followerId: userId,
       followingId: user._id,
     });
-    console.log(isFollower);
 
     if (!isFollower)
       return res.status(200).json({ message: "You're not a follower" });
