@@ -1,3 +1,4 @@
+import Follow from "../models/Follow.models.js";
 import User from "../models/User.models.js";
 
 const saveProfileDetails = async (req, res) => {
@@ -11,7 +12,7 @@ const saveProfileDetails = async (req, res) => {
       "followersCount",
       "isPrivate",
       "profilePic",
-      "isProfileCompleted"
+      "isProfileCompleted",
     ];
 
     const user = req.user;
@@ -63,8 +64,29 @@ const changePassword = async (req, res) => {
 
 const getProfileDetails = async (req, res) => {
   try {
+    const { userId } = req.query;
     const user = req.user;
-    return res.status(200).json({ message: "success", profile: user });
+    if (!userId) {
+      return res.status(200).json({ message: "success", profile: user });
+    }
+
+    const isFollower = await Follow.findOne({
+      isConfirmed: true,
+      followerId: userId,
+      followingId: user._id,
+    });
+    console.log(isFollower);
+
+    if (!isFollower)
+      return res.status(200).json({ message: "You're not a follower" });
+    const userDetails = await User.findById(userId).select(
+      "-refreshToken -isProfileCompleted -isPrivate -updatedAt -createdAt -__v0 -email"
+    );
+    if (!userDetails)
+      return res
+        .status(400)
+        .json({ message: "No user found with the given user Id" });
+    return res.status(201).json({ message: "Success", user: userDetails });
   } catch (error) {
     console.log("error getting profile details", error);
     return res.status(500).json({ message: "Internal server error" });

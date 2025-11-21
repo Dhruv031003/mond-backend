@@ -17,6 +17,11 @@ import extraRouter from "./routes/extra.routes.js";
 import verifyUser from "./middlewares/verifyUser.middleware.js";
 import getPreSignedURL from "./services/preSignedURL.js";
 
+// *****************
+// delete later
+// **************
+import User from "./models/User.models.js";
+
 
 const app = express();
 
@@ -40,6 +45,17 @@ app.use("/thread",verifyUser,threadRouter)
 app.use("/comment",verifyUser,commentRouter)
 app.use("/story",verifyUser,storyRouter)
 app.use("/follow",verifyUser,followRouter)
+
+// *********************
+// FIX THIS LATER
+// ****************
+app.get("/peopleYouMayKnow",verifyUser,async(req,res)=>{
+  const userList= await User.find()
+  return res.status(200).json({message:"success",userList})
+})
+
+
+
 app.use("/extra",extraRouter)
 
 app.post("/upload/preSignedURL",verifyUser,getPreSignedURL)
@@ -51,3 +67,5 @@ connectToDatabase(() => {
     );
   });
 });
+
+

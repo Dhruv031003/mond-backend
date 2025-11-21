@@ -15,7 +15,7 @@ const archivedStorySchema = new mongoose.Schema(
       required: true,
     },
 
-    ObjectUrl: String,
+    ObjectURL: String,
     fileType: String,
 
     mentions: [
@@ -33,5 +33,5 @@ const archivedStorySchema = new mongoose.Schema(
   { timestamps: true,versionKey: false }
 );
 
-const ArchivedStory= mongoose.model("ArchiveStory", archivedStorySchema);
+const ArchivedStory= mongoose.model("ArchivedStory", archivedStorySchema);
 export default ArchivedStory
