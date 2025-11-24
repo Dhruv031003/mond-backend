@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    // userName:{
+    //   type: String,
+    //   unique: true
+    // },
     name: {
       type: String,
     },
@@ -31,7 +35,8 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
     isPrivate:{
-      type: Boolean
+      type: Boolean,
+      default: true
     },
     phoneNo: {
       type: Number,

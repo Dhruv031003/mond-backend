@@ -70,6 +70,20 @@ const getProfileDetails = async (req, res) => {
       return res.status(200).json({ message: "success", profile: user });
     }
 
+    const userDetails = await User.findById(userId).select(
+      "-refreshToken -isProfileCompleted -updatedAt -createdAt -__v0 -email"
+    );
+    if (!userDetails)
+      return res
+        .status(400)
+        .json({ message: "No user found with the given user Id" });
+
+    if (userDetails.isPrivate === false) {
+      return res
+        .status(200)
+        .json({ message: "Details fetched!!", user: userDetails });
+    }
+
     const isFollower = await Follow.findOne({
       isConfirmed: true,
       followerId: userId,
@@ -78,14 +92,9 @@ const getProfileDetails = async (req, res) => {
 
     if (!isFollower)
       return res.status(200).json({ message: "You're not a follower" });
-    const userDetails = await User.findById(userId).select(
-      "-refreshToken -isProfileCompleted -isPrivate -updatedAt -createdAt -__v0 -email"
-    );
-    if (!userDetails)
-      return res
-        .status(400)
-        .json({ message: "No user found with the given user Id" });
+
     return res.status(201).json({ message: "Success", user: userDetails });
+    
   } catch (error) {
     console.log("error getting profile details", error);
     return res.status(500).json({ message: "Internal server error" });

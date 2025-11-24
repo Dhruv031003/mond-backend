@@ -17,6 +17,8 @@ import extraRouter from "./routes/extra.routes.js";
 import verifyUser from "./middlewares/verifyUser.middleware.js";
 import getPreSignedURL from "./services/preSignedURL.js";
 
+import startArchiverCron from "./cron/archiverCron.js";
+
 // *****************
 // delete later
 // **************
@@ -24,6 +26,8 @@ import User from "./models/User.models.js";
 
 
 const app = express();
+const cronTask = startArchiverCron({ cronExpression: "*/5 * * * *" });
+
 
 dotenv.config();
 

@@ -26,22 +26,43 @@ const storySchema = new mongoose.Schema(
       },
     ],
 
-    likes: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    likeCount: {
+      type: Number,
+      default: 0,
+    },
 
     expiresAt: {
       type: Date,
       default: () => new Date(Date.now() + 10 * 60 * 1000),
-      index: { expires: 0 }, 
+      index: true,
+    },
+    isArchived: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    isHighlighted: {
+      type: Boolean,
+      default: false,
+    },
+    allowedToView: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        index: true,
+      },
+    ],
+    archivedAt: {
+      type: Date,
+      default: null,
+      index: true,
     },
   },
-  { timestamps: true,versionKey: false }
+  { timestamps: true, versionKey: false }
 );
 
-const Story= mongoose.model("Story", storySchema);
+storySchema.index({ userId: 1, isArchived: 1, expiresAt: 1 });
 
-export default Story
+const Story = mongoose.model("Story", storySchema);
+
+export default Story;
