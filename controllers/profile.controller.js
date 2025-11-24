@@ -66,7 +66,7 @@ const getProfileDetails = async (req, res) => {
   try {
     const { userId } = req.query;
     const user = req.user;
-    if (!userId) {
+    if (!userId || userId.toString()===user._id.toString()) {
       return res.status(200).json({ message: "success", profile: user });
     }
 
@@ -91,7 +91,12 @@ const getProfileDetails = async (req, res) => {
     });
 
     if (!isFollower)
-      return res.status(200).json({ message: "You're not a follower" });
+      return res.status(200).json({ message: "You're not a follower!!!...follow for more details",user:{
+        "name": userDetails.name,
+        "_id":userDetails._id,
+        "bio": userDetails.bio,
+        "profilePic":userDetails.profilePic
+      } });
 
     return res.status(201).json({ message: "Success", user: userDetails });
     

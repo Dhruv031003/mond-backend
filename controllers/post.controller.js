@@ -6,7 +6,7 @@ const getAllPost = async (req, res) => {
   try {
     const { userId } = req.query;
     const user = req.user;
-    if (!userId) {
+    if (!userId || userId.toString()===user._id.toString()) {
       const allPosts = await Post.find({ userId: user._id });
       return res.status(200).json({ message: "success", allPosts });
     }
