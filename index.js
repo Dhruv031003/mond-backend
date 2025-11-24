@@ -15,6 +15,8 @@ import threadRouter from "./routes/thread.routes.js";
 import extraRouter from "./routes/extra.routes.js";
 
 import verifyUser from "./middlewares/verifyUser.middleware.js";
+import {toggleLike} from "./middlewares/toggleLike.js"
+
 import getPreSignedURL from "./services/preSignedURL.js";
 
 import startArchiverCron from "./cron/archiverCron.js";
@@ -49,6 +51,8 @@ app.use("/thread",verifyUser,threadRouter)
 app.use("/comment",verifyUser,commentRouter)
 app.use("/story",verifyUser,storyRouter)
 app.use("/follow",verifyUser,followRouter)
+
+app.post("/like",verifyUser,toggleLike)
 
 // *********************
 // FIX THIS LATER

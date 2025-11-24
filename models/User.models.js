@@ -34,9 +34,9 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    isPrivate:{
+    isPrivate: {
       type: Boolean,
-      default: true
+      default: true,
     },
     phoneNo: {
       type: Number,
@@ -52,15 +52,19 @@ const userSchema = new mongoose.Schema(
     profilePic: {
       type: String,
     },
-    links:{
-        type: Map,
-        of: String,
-        default:{}
+    links: {
+      type: Map,
+      of: String,
+      default: {},
     },
-    isProfileCompleted:{
+    isProfileCompleted: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
+    deviceTokens: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true, versionKey: false }
 );

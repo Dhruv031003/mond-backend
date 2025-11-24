@@ -18,8 +18,7 @@ const threadSchema= new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "Thread"
     },
-    likes:[],
-    likesCount:{
+    likeCount:{
         type: Number,
         default: 0
     }

@@ -8,7 +8,13 @@ import {
   returnErrors
 } from "../middlewares/validateData.middleware.js";
 import verifyUser from "../middlewares/verifyUser.middleware.js";
+
+import {saveDeviceToken} from "../middlewares/saveDeviceToken.js";
+
+
 const authRouter = express.Router();
+
+authRouter.post("/saveDeviceToken",verifyUser,saveDeviceToken)
 
 authRouter.get("/logout", verifyUser, authController.logoutHandler);
 

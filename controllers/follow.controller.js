@@ -1,5 +1,5 @@
 import Follow from "../models/Follow.models.js";
-import mongoose from "mongoose"
+import { sendNotification } from "../utils/sendFCM.js";
 
 export const toggleFollow = async (req, res) => {
   try {
@@ -16,7 +16,9 @@ export const toggleFollow = async (req, res) => {
 
     if (isFollowing) {
       await Follow.deleteOne({ _id: isFollowing._id });
-      return res.status(200).json({ message: "follow request cancelled!!", following: false });
+      return res
+        .status(200)
+        .json({ message: "follow request cancelled!!", following: false });
     }
     const followRequest = await Follow.create({
       followingId,
@@ -25,6 +27,15 @@ export const toggleFollow = async (req, res) => {
     return res
       .status(200)
       .json({ message: "Follow request send successfully!!", followRequest });
+
+    process.nextTick(() => {
+      sendNotification(
+        followingId,
+        "New Friend Request",
+        `${user.name} sent you a friend request!!!`,
+        { type: "Follow", followerId: user._id }
+      ).catch((err) => console.error("Follow req fcm error:", err));
+    });
   } catch (error) {
     console.log(error, "error while follwiing");
     return res.status(500).json({ message: "Internal sever errro" });
@@ -33,8 +44,8 @@ export const toggleFollow = async (req, res) => {
 
 export const getFollowersAndFollowingCount = async (req, res) => {
   try {
-    let {userId}= req.query
-    if(!userId){
+    let { userId } = req.query;
+    if (!userId) {
       userId = req.user?._id;
     }
 
@@ -95,7 +106,7 @@ export const getFollowersList = async (req, res) => {
       const isFollower = await Follow.findOne({
         followerId: req.user._id,
         followingId: userId,
-        isConfirmed: true
+        isConfirmed: true,
       });
 
       if (!isFollower)
@@ -106,12 +117,10 @@ export const getFollowersList = async (req, res) => {
       followingId: userId,
       isConfirmed: true,
     });
-    return res
-      .status(200)
-      .json({
-        message: "success",
-        followersList
-      });
+    return res.status(200).json({
+      message: "success",
+      followersList,
+    });
   } catch (error) {
     console.log("error while fetching followers list", error);
     return res.status(500).json({ message: "internal server error" });
@@ -136,14 +145,12 @@ export const getFollowingList = async (req, res) => {
 
     const followingList = await Follow.find({
       followerId: userId,
-      isConfirmed: true
+      isConfirmed: true,
     });
-    return res
-      .status(200)
-      .json({
-        message: "success",
-        followingList
-      });
+    return res.status(200).json({
+      message: "success",
+      followingList,
+    });
   } catch (error) {
     console.log("error while fetching followers list", error);
     return res.status(500).json({ message: "internal server error" });

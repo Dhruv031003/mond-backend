@@ -8,29 +8,24 @@ const storySchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-
     objectURL: {
       type: String,
       required: true,
     },
-
     fileType: {
       type: String,
       required: true,
     },
-
     mentions: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
-
     likeCount: {
       type: Number,
       default: 0,
     },
-
     expiresAt: {
       type: Date,
       default: () => new Date(Date.now() + 10 * 60 * 1000),
