@@ -9,8 +9,6 @@ const commentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-
-    // ----------- Polymorphic reference for Post or Reel -----------
     objectId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -21,14 +19,13 @@ const commentSchema = new mongoose.Schema(
       required: true,
     },
 
-    // ----------- For replies (second level only) -----------
+   
     parentComment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment",
-      default: null, // null means TOP LEVEL comment
+      default: null,
     },
 
-    // ----------- Likes -----------
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     likeCount: { type: Number, default: 0 },
   },

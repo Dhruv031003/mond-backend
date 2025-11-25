@@ -7,7 +7,7 @@ const getAllPost = async (req, res) => {
     const { userId } = req.query;
     const user = req.user;
     if (!userId || userId.toString()===user._id.toString()) {
-      const allPosts = await Post.find({ userId: user._id });
+      const allPosts = await Post.find({ userId: user._id, isDeleted: false });
       return res.status(200).json({ message: "success", allPosts });
     }
 
@@ -41,7 +41,7 @@ const getPost = async (req, res) => {
     const user = req.user;
     const post = await Post.findById(postId);
 
-    if (!post)
+    if (!post || post.isDeleted)
       return res.status(404).json({ message: "This post doesn't exists" });
 
     if (post.userId.toString() === user._id.toString())

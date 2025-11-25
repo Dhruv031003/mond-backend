@@ -7,7 +7,7 @@ const getReplies = async (req, res) => {
     const limit = Number(req.query.limit) || 10;
     const after = req.query.after;
 
-    const filter = { parent_thread_id: threadId };
+    const filter = { parent_thread_id: threadId, isDeleted: false };
 
     if (after) {
       filter._id = { $gt: new mongoose.Types.ObjectId(after) };
@@ -50,7 +50,7 @@ const getThread = async (req, res) => {
       )
       .lean();
 
-    if (!thread) {
+    if (!thread || thread.isDeleted) {
       return res.status(404).json({ message: "Thread not found" });
     }
 
@@ -96,7 +96,8 @@ const getAllThreads = async (req, res) => {
 
     const filter = {
       userId: userId, // FIXED
-      parent_thread_id: null, // only parent threads
+      parent_thread_id: null, // only parent threads,
+      isDeleted: false
     };
 
     if (after) {

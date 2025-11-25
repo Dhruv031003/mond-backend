@@ -34,6 +34,7 @@ export const getActiveStories = async (req, res) => {
       const activeStories = await Story.find({
         userId: user._id,
         isArchived: false,
+        isDeleted:false,
         expiresAt: { $gt: new Date() },
       })
         .sort({ createdAt: -1 })
@@ -64,6 +65,7 @@ export const getActiveStories = async (req, res) => {
     const activeStories = await Story.find({
       userId,
       isArchived: false,
+      isDeleted:false,
       expiresAt: { $gt: new Date() },
     })
       .sort({ createdAt: -1 })
@@ -89,7 +91,7 @@ export const getStory = async (req, res) => {
       .populate("userId", "name profilePic _id")
       .populate("mentions", "name profilePic _id");
 
-    if (!story) {
+    if (!story || story.isDeleted) {
       return res.status(404).json({
         message: "Story not found or expired",
       });

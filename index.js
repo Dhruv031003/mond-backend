@@ -11,11 +11,11 @@ import commentRouter from "./routes/comment.routes.js";
 import storyRouter from "./routes/story.routes.js";
 import followRouter from "./routes/follow.routes.js";
 import threadRouter from "./routes/thread.routes.js";
+import commonRouter from "./routes/common.routes.js";
 
 import extraRouter from "./routes/extra.routes.js";
 
 import verifyUser from "./middlewares/verifyUser.middleware.js";
-import {toggleLike} from "./middlewares/toggleLike.js"
 
 import getPreSignedURL from "./services/preSignedURL.js";
 
@@ -51,8 +51,7 @@ app.use("/thread",verifyUser,threadRouter)
 app.use("/comment",verifyUser,commentRouter)
 app.use("/story",verifyUser,storyRouter)
 app.use("/follow",verifyUser,followRouter)
-
-app.post("/like",verifyUser,toggleLike)
+app.use("/common",verifyUser,commonRouter)
 
 // *********************
 // FIX THIS LATER

@@ -7,7 +7,7 @@ const getAllReels = async (req, res) => {
     const { userId } = req.query;
     const user = req.user;
     if (!userId) {
-      const allReels = await Reel.find({ userId: user._id });
+      const allReels = await Reel.find({ userId: user._id,isDeleted: false });
       return res.status(200).json({ message: "success", allReels });
     }
 
@@ -41,7 +41,7 @@ const getReel = async (req, res) => {
     const user = req.user;
     const reel = await Reel.findById(reelId);
 
-    if (!reel)
+    if (!reel || reel.isDeleted)
       return res.status(404).json({ message: "This reel doesn't exists" });
 
     if (reel.userId.toString() === user._id.toString())

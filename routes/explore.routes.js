@@ -4,6 +4,6 @@ import checkEmptyBody from "../middlewares/checkEmptyBody.middleware.js"
 
 const exploreRouter=express.Router()
 
-exploreRouter.get("/",checkEmptyBody,getExplore)
+exploreRouter.get("/",getExplore)
 
 export default exploreRouter
