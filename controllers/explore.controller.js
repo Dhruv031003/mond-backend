@@ -4,6 +4,31 @@ import Post from "../models/Post.models.js";
 const getExplore = async (req, res) => {
   try {
     const reels = await Reel.aggregate([
+      {
+        $match: {
+          isDeleted: false,
+          isArchived: false,
+        },
+      },
+      {
+        $match: {
+          userId: { $ne: req.user._id },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $match: {
+          "user.isPrivate": false,
+        },
+      },
       { $sample: { size: 10 } },
       {
         $project: {
@@ -18,6 +43,31 @@ const getExplore = async (req, res) => {
     ]);
 
     const posts = await Post.aggregate([
+      {
+        $match: {
+          isDeleted: false,
+          isArchived: false,
+        },
+      },
+      {
+        $match: {
+          userId: { $ne: req.user._id },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $match: {
+          "user.isPrivate": false,
+        },
+      },
       { $sample: { size: 10 } },
       {
         $project: {
