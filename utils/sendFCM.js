@@ -7,7 +7,7 @@ export const sendNotification = async (userId, title, body, data = {}) => {
 
     if (!user || user.deviceTokens.length === 0) {
       console.log("User has no device tokens");
-      return;
+      return { responses: [], successCount: 0, failureCount: 0 };
     }
 
     const message = {
@@ -17,8 +17,9 @@ export const sendNotification = async (userId, title, body, data = {}) => {
     };
 
     const response = await fcm.sendEachForMulticast(message);
-    console.log("FCM sent:", response);
+    return response;               // 🔥 THIS IS REQUIRED
   } catch (error) {
     console.error("FCM Error:", error);
+    throw error;                    // 🔥 Let caller catch it
   }
 };

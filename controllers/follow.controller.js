@@ -24,18 +24,38 @@ export const toggleFollow = async (req, res) => {
       followingId,
       followerId: user._id,
     });
+    process.nextTick(async () => {
+      console.log("Sending follow request notification...");
+
+      try {
+        const response = await sendNotification(
+          followingId,
+          "New Friend Request",
+          `${user.name} sent you a friend request!!!`,
+          { "type": "Follow", "followerId": String(user._id) }
+        );
+
+        console.log("FCM RESPONSE:", JSON.stringify(response, null, 2));
+
+        // 🔥 Print individual token errors clearly
+        if (response?.responses?.length) {
+          response.responses.forEach((r, index) => {
+            if (!r.success) {
+              console.error(`❌ Token #${index} failed`);
+              console.error("   Code:", r.error?.code);
+              console.error("   Message:", r.error?.message);
+              console.error("   Full:", r.error);
+            }
+          });
+        }
+      } catch (error) {
+        console.error("🔥 FCM Fatal Error:", error);
+      }
+    });
+
     return res
       .status(200)
       .json({ message: "Follow request send successfully!!", followRequest });
-
-    process.nextTick(() => {
-      sendNotification(
-        followingId,
-        "New Friend Request",
-        `${user.name} sent you a friend request!!!`,
-        { type: "Follow", followerId: user._id }
-      ).catch((err) => console.error("Follow req fcm error:", err));
-    });
   } catch (error) {
     console.log(error, "error while follwiing");
     return res.status(500).json({ message: "Internal sever errro" });
