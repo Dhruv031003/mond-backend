@@ -1,5 +1,5 @@
 import Follow from "../models/Follow.models.js";
-import { sendNotification } from "../utils/sendFCM.js";
+import { sendNotification } from "../services/sendNotification.js";
 
 export const toggleFollow = async (req, res) => {
   try {
@@ -24,34 +24,16 @@ export const toggleFollow = async (req, res) => {
       followingId,
       followerId: user._id,
     });
-    process.nextTick(async () => {
-      console.log("Sending follow request notification...");
 
-      try {
-        const response = await sendNotification(
-          followingId,
-          "New Friend Request",
-          `${user.name} sent you a friend request!!!`,
-          { "type": "Follow", "followerId": String(user._id) }
-        );
-
-        console.log("FCM RESPONSE:", JSON.stringify(response, null, 2));
-
-        // 🔥 Print individual token errors clearly
-        if (response?.responses?.length) {
-          response.responses.forEach((r, index) => {
-            if (!r.success) {
-              console.error(`❌ Token #${index} failed`);
-              console.error("   Code:", r.error?.code);
-              console.error("   Message:", r.error?.message);
-              console.error("   Full:", r.error);
-            }
-          });
-        }
-      } catch (error) {
-        console.error("🔥 FCM Fatal Error:", error);
-      }
-    });
+    res.on("finish", async () => {
+  await sendNotification(
+    followingId,
+    "New Follow Request",
+    `${user.username} has sent you a follow request.`,
+    "followRequest",
+    { followerId: user._id.toString() }
+  );
+});
 
     return res
       .status(200)

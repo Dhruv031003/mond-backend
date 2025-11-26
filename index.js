@@ -12,6 +12,7 @@ import storyRouter from "./routes/story.routes.js";
 import followRouter from "./routes/follow.routes.js";
 import threadRouter from "./routes/thread.routes.js";
 import commonRouter from "./routes/common.routes.js";
+import notificationRouter from "./routes/notification.routes.js";
 
 import extraRouter from "./routes/extra.routes.js";
 
@@ -53,6 +54,7 @@ app.use("/comment",verifyUser,commentRouter)
 app.use("/story",verifyUser,storyRouter)
 app.use("/follow",verifyUser,followRouter)
 app.use("/common",verifyUser,commonRouter)
+app.use("/notification",verifyUser,notificationRouter)
 
 // *********************
 // FIX THIS LATER

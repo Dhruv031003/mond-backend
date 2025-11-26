@@ -46,10 +46,17 @@ const sessionSchema= new mongoose.Schema({
         type: Boolean,
         default: true,
         index: true
+    },
+    lastUsedAt:{
+        type: Date,
+        default: Date.now,
+        index: true
     }
 }, {timestamps: true,versionKey: false})
 
 sessionSchema.index({ sessionId: 1, refreshTokenHash: 1 });
+
+sessionSchema.index({ lastUsedAt: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 });
 
 const Session= mongoose.model("Session",sessionSchema)
 

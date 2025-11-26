@@ -20,6 +20,7 @@ export const createSessionAndTokens = async (
     session.ipAddress = ipAddress;
     session.fcmToken = fcmToken || session.fcmToken;
     session.isActive = true;
+    session.lastUsedAt = new Date();
     await session.save();
   } else {
     session = new Session({
@@ -29,6 +30,7 @@ export const createSessionAndTokens = async (
       userAgent,
       ipAddress,
       fcmToken,
+      lastUsedAt: new Date(),
       isActive: true,
     });
   }
