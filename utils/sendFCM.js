@@ -17,9 +17,9 @@ export const sendNotification = async (userId, title, body, data = {}) => {
     };
 
     const response = await fcm.sendEachForMulticast(message);
-    return response;               // 🔥 THIS IS REQUIRED
+    return response;               
   } catch (error) {
     console.error("FCM Error:", error);
-    throw error;                    // 🔥 Let caller catch it
+    throw error;                    
   }
 };

@@ -5,7 +5,7 @@ import {
   emailRegisterValidator,
   phoneLoginValidator,
   phoneRegisterValidator,
-  returnErrors
+  returnErrors,
 } from "../middlewares/validateData.middleware.js";
 import verifyUser from "../middlewares/verifyUser.middleware.js";
 
@@ -16,7 +16,8 @@ const authRouter = express.Router();
 
 authRouter.post("/saveDeviceToken",verifyUser,saveDeviceToken)
 
-authRouter.get("/logout", verifyUser, authController.logoutHandler);
+authRouter.post("/logout", verifyUser, authController.logoutHandler);
+authRouter.post("/logoutAll", verifyUser, authController.logoutFromAllDevicesHandler);
 
 authRouter.post("/google/callback", authController.oAuthHandler);
 

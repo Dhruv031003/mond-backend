@@ -46,7 +46,7 @@ const getThread = async (req, res) => {
     const thread = await Thread.findById(threadId)
       .populate(
         "userId",
-        "-refreshToken -postCount -updatedAt -email -isPrivate -followersCount -links -isProfileCompleted -createdAt -__v"
+        "-sessions -postCount -updatedAt -email -isPrivate -followersCount -links -isProfileCompleted -createdAt -__v"
       )
       .lean();
 
@@ -63,7 +63,7 @@ const getThread = async (req, res) => {
         const parent = await Thread.findById(currentParent)
           .populate(
             "userId",
-            "-refreshToken -postCount -updatedAt -email -isPrivate -followersCount -links -isProfileCompleted -createdAt -__v"
+            "-sessions -postCount -updatedAt -email -isPrivate -followersCount -links -isProfileCompleted -createdAt -__v"
           )
           .lean();
 

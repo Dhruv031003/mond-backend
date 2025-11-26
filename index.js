@@ -33,6 +33,7 @@ const cronTask = startArchiverCron({ cronExpression: "*/5 * * * *" });
 
 dotenv.config();
 
+app.set("trust proxy", 1);
 app.use(cors({ origin: "*" }));
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))

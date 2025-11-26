@@ -71,7 +71,7 @@ const getProfileDetails = async (req, res) => {
     }
 
     const userDetails = await User.findById(userId).select(
-      "-refreshToken -isProfileCompleted -updatedAt -createdAt -__v0 -email"
+      "-sessions -isProfileCompleted -updatedAt -createdAt -__v0 -email"
     );
     if (!userDetails)
       return res

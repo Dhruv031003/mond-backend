@@ -46,9 +46,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       select: false,
     },
-    refreshToken: {
-      type: String,
-    },
     profilePic: {
       type: String,
     },
@@ -60,11 +57,7 @@ const userSchema = new mongoose.Schema(
     isProfileCompleted: {
       type: Boolean,
       default: false,
-    },
-    deviceTokens: {
-      type: [String],
-      default: [],
-    },
+    },   
   },
   { timestamps: true, versionKey: false }
 );

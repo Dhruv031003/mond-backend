@@ -1,4 +1,6 @@
 import User from "../models/User.models.js";
+import Session from "../models/Session.models.js";
+
 import axios from "axios";
 import { oauth2Client } from "../configs/googleConfig.js";
 import jwt from "jsonwebtoken";
@@ -7,15 +9,29 @@ import dotenv from "dotenv";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "../utils/generateAccess&RefreshToken.js";
+  hashRefreshToken,
+  compareToken,
+} from "../utils/access&RefreshToken.js";
+
+import { createSessionAndTokens } from "../services/sessionService.js";
 
 dotenv.config();
 
 const logoutHandler = async (req, res) => {
   try {
-    const user = req.user;
-    user.refreshToken = null;
-    await user.save({ validateBeforeSave: false });
+    const { refreshToken, sessionId } = req.body;
+
+    if (!refreshToken || !sessionId) {
+      return res
+        .status(400)
+        .json({ message: "refresh token and session id are required" });
+    }
+
+    await Session.findOneAndUpdate(
+      { sessionId, userId: req.user._id },
+      { isActive: false }
+    );
+
     return res.status(200).json({ message: "logout successful" });
   } catch (error) {
     console.log(error, "Logout error");
@@ -23,28 +39,57 @@ const logoutHandler = async (req, res) => {
   }
 };
 
+export const logoutFromAllDevicesHandler = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    await Session.deleteMany({ userId });
+    return res.status(200).json({ message: "Logged out from all devices" });
+  } catch (error) {
+    console.log(error, "Logout from all devices error");
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const emailLoginHandler = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, deviceId, fcmToken } = req.body;
+
+    if (!deviceId) {
+      return res.status(400).json({ message: "Device ID is required" });
+    }
+
+    const userAgent = req.headers["user-agent"] || "unknown";
+    const ipAddress =
+      req.headers["x-forwarded-for"]?.split(",")[0] ||
+      req.ip ||
+      req.connection?.remoteAddress ||
+      "unknown";
+
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return res
         .status(400)
         .json({ message: "User does not exist with this email" });
     }
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentails" });
     }
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
 
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
+    const { accessToken, refreshToken, session } = await createSessionAndTokens(
+      user,
+      deviceId,
+      userAgent,
+      ipAddress,
+      fcmToken
+    );
+
     return res.status(200).json({
       message: "Successful login",
       accessToken,
       refreshToken,
+      sessionId: session.sessionId,
     });
   } catch (error) {
     console.log(error, "email login error");
@@ -54,7 +99,17 @@ const emailLoginHandler = async (req, res) => {
 
 const emailRegisterHandler = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, deviceId, fcmToken } = req.body;
+
+    if (!deviceId)
+      return res.status(400).json({ message: "Device ID is required" });
+
+    const userAgent = req.headers["user-agent"] || "unknown";
+    const ipAddress =
+      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+      req.ip ||
+      req.connection?.remoteAddress ||
+      "unknown";
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -62,27 +117,43 @@ const emailRegisterHandler = async (req, res) => {
         .status(400)
         .json({ message: "A user already exists with the following email" });
     }
-    const user = new User({ email, password });
-    await user.save();
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
 
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
+    const user = await User.create({ email, password });
+    await user.save();
+
+    const { accessToken, refreshToken, session } = await createSessionAndTokens(
+      user,
+      deviceId,
+      userAgent,
+      ipAddress,
+      fcmToken
+    );
+
     return res.status(201).json({
-      message: "registration successful!!",
+      message: "Registration successful!!",
       accessToken,
       refreshToken,
+      sessionId: session.sessionId,
     });
   } catch (error) {
-    console.log(error, "email registere error");
+    console.log(error, "email register error");
     res.status(500).json({ message: "internal server error" });
   }
 };
 
 const phoneLoginHandler = async (req, res) => {
   try {
-    const { phoneNo, password } = req.body;
+    const { phoneNo, password, deviceId, fcmToken } = req.body;
+    if (!deviceId) {
+      return res.status(400).json({ message: "Device ID is required" });
+    }
+    const userAgent = req.headers["user-agent"] || "unknown";
+    const ipAddress =
+      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+      req.ip ||
+      req.connection?.remoteAddress ||
+      "unknown";
+
     const user = await User.findOne({ phoneNo }).select("+password");
     if (!user) {
       return res
@@ -93,14 +164,19 @@ const phoneLoginHandler = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
+    const { accessToken, refreshToken, session } = await createSessionAndTokens(
+      user,
+      deviceId,
+      userAgent,
+      ipAddress,
+      fcmToken
+    );
+
     return res.status(200).json({
       message: "Successful login",
       accessToken,
       refreshToken,
+      sessionId: session.sessionId,
     });
   } catch (error) {
     console.log(error, "phone login error");
@@ -110,7 +186,18 @@ const phoneLoginHandler = async (req, res) => {
 
 const phoneRegisterHandler = async (req, res) => {
   try {
-    const { phoneNo, password } = req.body;
+    const { phoneNo, password, deviceId, fcmToken } = req.body;
+    if (!deviceId) {
+      return res.status(400).json({ message: "Device ID is required" });
+    }
+
+    const userAgent = req.headers["user-agent"] || "unknown";
+    const ipAddress =
+      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+      req.ip ||
+      req.connection?.remoteAddress ||
+      "unknown";
+
     const existingUser = await User.findOne({ phoneNo });
     if (existingUser) {
       return res.status(400).json({
@@ -118,19 +205,21 @@ const phoneRegisterHandler = async (req, res) => {
       });
     }
 
-    const user = new User({ phoneNo, password });
-    await user.save();
-    // const token = crypto.randomBytes(32).toString("hex");
-    // await redisClient.set(`verify:${token}`, email, { EX: 30 });
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
+    const user = await User.create({ phoneNo, password });
 
-    user.refreshToken = refreshToken;
-    user.save({ validateBeforeSave: false });
+    const { accessToken, refreshToken, session } = await createSessionAndTokens(
+      user,
+      deviceId,
+      userAgent,
+      ipAddress,
+      fcmToken
+    );
+
     return res.status(200).json({
-      message: "registration successful!!",
+      message: "Registration successful!!",
       accessToken,
       refreshToken,
+      sessionId: session.sessionId,
     });
   } catch (error) {
     console.log(error, "phone register error");
@@ -140,8 +229,17 @@ const phoneRegisterHandler = async (req, res) => {
 
 const oAuthHandler = async (req, res) => {
   try {
-    const { code, idToken } = req.body;
-    console.log(code);
+    const { code, idToken, deviceId, fcmToken } = req.body;
+    if (!deviceId) {
+      return res.status(400).json({ message: "Device ID is required" });
+    }
+    const userAgent = req.headers["user-agent"] || "unknown";
+    const ipAddress =
+      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+      req.ip ||
+      req.connection?.remoteAddress ||
+      "unknown";
+
     let userInfo;
 
     if (idToken) {
@@ -165,19 +263,23 @@ const oAuthHandler = async (req, res) => {
 
     let user = await User.findOne({ email });
     if (!user) {
-      user = new User({ email, name, image: picture });
-      await user.save();
+      user = await User.create({ email, name, image: picture });
     }
 
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
+    const { accessToken, refreshToken, session } = await createSessionAndTokens(
+      user,
+      deviceId,
+      userAgent,
+      ipAddress,
+      fcmToken
+    );
 
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
-
-    res
-      .status(200)
-      .json({ message: "Login successfull", accessToken, refreshToken });
+    res.status(200).json({
+      message: "Login successfull",
+      accessToken,
+      refreshToken,
+      sessionId: session.sessionId,
+    });
   } catch (error) {
     console.log("oauth login error", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -188,25 +290,47 @@ const refreshAccessTokenHandler = async (req, res) => {
   try {
     const { refreshToken } = req.body;
     if (!refreshToken)
-      return res.status(400).json({ message: "access token is required" });
+      return res
+        .status(400)
+        .json({ message: "refresh token is required" });
 
-    const { userId } = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    } catch (err) {
+      return res
+        .status(401)
+        .json({ message: "Invalid or expired refresh token" });
+    }
 
-    const user = await User.findById(userId);
-    if (!user) return res.status(401).json({ message: "Invalid token" });
-    if (user.refreshToken !== refreshToken)
-      return res.status(401).json({ message: "Invalid Token" });
+    const session = await Session.findOne({
+      sessionId:decoded.sessionId,
+      userId: decoded.userId,
+      isActive: true,
+    });
+    if (!session) {
+      return res
+        .status(401)
+        .json({ message: "Refresh token does not match any active session" });
+    }
 
-    const newAccessToken = generateAccessToken(user._id);
-    const newRefreshToken = generateRefreshToken(user._id);
+    const isValid = await compareToken(refreshToken, session.refreshTokenHash);
+    if (!isValid) {
+      return res.status(401).json({ message: "Refresh token does not match" });
+    }
 
-    user.refreshToken = newRefreshToken;
-    await user.save({ validateBeforeSave: false });
+    const newAccessToken = generateAccessToken(decoded.userId);
+    const newRefreshToken = generateRefreshToken(decoded.userId);
+    const newRefreshTokenHash = await hashRefreshToken(newRefreshToken);
 
-    return res.send({
+    session.refreshTokenHash = newRefreshTokenHash;
+    await session.save();
+
+    return res.status(200).json({
       message: "Tokens refreshed!",
-      refreshToken: newRefreshToken,
       accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      sessionId: session.sessionId,
     });
   } catch (error) {
     console.log("error refreshing token", error);
@@ -228,4 +352,5 @@ export default {
   phoneRegisterHandler,
   refreshAccessTokenHandler,
   logoutHandler,
+  logoutFromAllDevicesHandler
 };
