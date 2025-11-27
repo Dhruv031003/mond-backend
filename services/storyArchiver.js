@@ -8,8 +8,7 @@ export async function archiveExpiredStories({ batchSize = 1000 } = {}) {
   while (true) {    
     const candidates = await Story.find(
       {
-        isArchived: false,
-        isHighlited: false,            
+        isArchived: false,            
         expiresAt: { $lte: now },
       },
       { _id: 1 }                        
