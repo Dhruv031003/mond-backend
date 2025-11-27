@@ -1,12 +1,22 @@
 import Comment from "../models/Comment.models.js";
+import Post from "../models/Post.models.js";
+import Reel from "../models/Reel.models.js";
 
 export const createComment = async (req, res) => {
   try {
     const { text, objectId, objectType, parentComment } = req.body;
-
+    
     if (!["Post", "Reel"].includes(objectType)) {
       return res.status(400).json({ message: "Invalid object type" });
     }
+
+    let model;
+    if(objectType==="Post") model=Post
+    else model=Reel
+
+    const object= await model.findById(objectId).select("commentsOff");
+    if(!object) return res.status(404).json({message:`${objectType} not found`})
+    if(object. commentsOff) return res.status(403).json({message:`Comments are turned off for this ${objectType}`})
 
     if (parentComment) {
       const parent = await Comment.findById(parentComment);

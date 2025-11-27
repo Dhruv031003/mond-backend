@@ -46,6 +46,10 @@ const postSchema = mongoose.Schema(
       type: Date,
       default: null,
     },
+    commentsOff:{
+      type: Boolean,
+      default: false,
+    }
   },
   { timestamps: true, versionKey: false }
 );

@@ -178,7 +178,4 @@ const getHighlights = async (req, res) => {
       isHighlighted: true,
     }).populate("mentions", "name profilePic _id");
   }
-
-  
-
 };

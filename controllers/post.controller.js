@@ -68,7 +68,7 @@ const getPost = async (req, res) => {
 
 const createPost = async (req, res) => {
   try {
-    const { description, location, isArchived, hashTags, fileType, objectURL } =
+    const { description, location, isArchived, hashTags, fileType, objectURL,commentsOff } =
       req.body;
     const user = req.user;
     const post = await Post.create({
@@ -79,6 +79,7 @@ const createPost = async (req, res) => {
       isArchived: isArchived ?? false,
       hashTags: hashTags ?? [],
       objectURL: objectURL ?? null,
+      commentsOff: commentsOff ?? false,
     });
     return res.status(200).json({ message: "success", post });
   } catch (error) {

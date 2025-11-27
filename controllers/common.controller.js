@@ -49,7 +49,11 @@ export const deletePostReelOrStory = async (req, res) => {
       return res.status(400).json({ message: "Incorrect object type" });
     }
 
-    const object = await MODELS[objectType].findOne({ _id: objectId, userId , isDeleted:false});
+    const object = await MODELS[objectType].findOne({
+      _id: objectId,
+      userId,
+      isDeleted: false,
+    });
     if (!object)
       return res.status(400).json({
         message: "Invalid object id or you're not authorised to delete it",
@@ -66,5 +70,36 @@ export const deletePostReelOrStory = async (req, res) => {
   } catch (error) {
     console.log(`Error while deleting ${req.body.objectType}`, error);
     return res.status(500).json({ message: "Error while deleting" });
+  }
+};
+
+export const toggleComments = async (req, res) => {
+  try {
+    const { objectId, objectType } = req.body;
+    if (!objectId || !objectType) {
+      return res
+        .status(400)
+        .json({ message: "objectId and objectType are required" });
+    }
+    if (!["Post", "Reel"].includes(objectType))
+      return res.status(400).json({ message: "Send correct objectType" });
+
+    let model;
+    if (objectType === "Post") model = Post;
+    else model = Reel;
+
+    const object = await model.findById(objectId).select("commentsOff userId");
+    if (!object)
+      return res.status(404).json({ message: `${objectType} not found` });
+    
+    if(object.userId.toString()!==req.user._id.toString()) return res.status(400).json({"message":"You're not allowed to turn off comments!!!"})
+    object.commentsOff = !object.commentsOff;
+    object.save();
+    return res
+      .status(200)
+      .json({ message: "success", commentsOff: object.commentsOff });
+  } catch (error) {
+    console.log("Error while toggling comments", error);
+    return res.status(500).json({ message: "Error while toggling comments" });
   }
 };
