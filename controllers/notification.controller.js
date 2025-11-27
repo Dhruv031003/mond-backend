@@ -50,6 +50,7 @@ export const getNotifications = async (req, res) => {
     const limit = req.query.limit || 20;
     const cursor = req.query.cursor;
     const type= req.query.type
+    const event= req.query.event
 
     const query = { userId };
 
@@ -58,6 +59,9 @@ export const getNotifications = async (req, res) => {
     }
     if (type) {
       query.type = type;
+    }
+    if (event) {
+      query["data.event"] = event;
     }
 
     const notifications = await Notification.find(query)

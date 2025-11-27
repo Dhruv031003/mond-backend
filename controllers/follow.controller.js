@@ -26,21 +26,21 @@ export const toggleFollow = async (req, res) => {
     });
 
     res.on("finish", async () => {
-  await sendNotification(
-    followingId,
-    "New Follow Request",
-    `${user.username} has sent you a follow request.`,
-    "followRequest",
-    { followerId: user._id.toString() }
-  );
-});
+      await sendNotification(
+        followingId,
+        "New Follow Request",
+        `${user.username} has sent you a follow request.`,
+        "general",
+        { event: "followRequest", followerId: user._id.toString() }
+      );
+    });
 
     return res
       .status(200)
       .json({ message: "Follow request send successfully!!", followRequest });
   } catch (error) {
     console.log(error, "error while follwiing");
-    return res.status(500).json({ message: "Internal sever errro" });
+    return res.status(500).json({ message: "Internal server errro" });
   }
 };
 

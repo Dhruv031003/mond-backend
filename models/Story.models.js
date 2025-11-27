@@ -28,7 +28,7 @@ const storySchema = new mongoose.Schema(
     },
     expiresAt: {
       type: Date,
-      default: () => new Date(Date.now() + 10 * 60 * 1000),
+      default: () => new Date(Date.now() + 30 * 60 * 1000),
       index: true,
     },
     isArchived: {
